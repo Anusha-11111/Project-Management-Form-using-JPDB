@@ -34,7 +34,7 @@ Click [Reset] to reset the form to enter new data.
 ![Screenshot (47)](https://github.com/Anusha-11111/Project-Management-Form-using-JPDB/assets/112841894/4cfdb2be-941a-492a-b6a9-0af2906bd51e)
 ![Screenshot (48)](https://github.com/Anusha-11111/Project-Management-Form-using-JPDB/assets/112841894/68a2e6c1-64a9-4a5d-8bbd-6382b3bdc3e9)
 ![Screenshot (49)](https://github.com/Anusha-11111/Project-Management-Form-using-JPDB/assets/112841894/e57d8290-ce58-447a-96c9-9efa494a9e68)
-![Screenshot (1)](https://github.com/Anusha-11111/Project-Management-Form-using-JPDB/assets/112841894/4ef335c2-0b8b-4136-8169-4c8c7b5dece6)
+
 
 Project status : Done
 

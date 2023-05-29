@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+Project Management Form that will store data in PROJECT-TABLE relation of COLLEGE-DB database
+
+Input Fields: {Project-ID, Project-Name, Assigned-To, Assignment-Date, Deadline}
+
+Primary key: Project ID
+-->
+<html lang="en">
+<head>
+    <title>Project Management form using JPDB</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="page-header text-center">
+        <h2>Project Management form</h2>
+    </div>
+    <form id="projectForm" method="get">
+        <div class="form-group">
+            <label>Project ID:</label>
+            <input type="text" class="form-control" id="projectId" placeholder="Enter Project ID" onchange="getproject()">
+        </div>
+
+        <div class="form-group">
+            <label>Project Name:</label>
+            <input type="text" class="form-control" id="projectname" placeholder="Enter Project Name">
+        </div>
+
+        <div class="form-group">
+            <label>Assigned To:</label>
+            <input type="text" class="form-control" id="assignedto" placeholder="Enter name">
+        </div>
+
+        <div class="form-group">
+            <label>Assigned Date:</label>
+            <input type="date" class="form-control" id="assigneddate">
+        </div>
+
+        <div class="form-group">
+            <label>Deadline:</label>
+            <input type="date" class="form-control" id="deadline">
+        </div>
+
+        <div class="form-group text-center">
+            <button type="button" class="btn btn-primary" id="save" onclick="saveData()" disabled>Save</button>
+            <button type="button" class="btn btn-primary" id="update" onclick="updateData()" disabled>Update</button>
+            <button type="button" class="btn btn-primary" id="reset" onclick="resetForm()" disabled>Reset</button>
+        </div>
+    </form>
+</div>
+
+<script type='text/javascript' src='http://login2explore.com/jpdb/resources/js/0.0.3/jpdb-commons.js'></script>
+
+<script>
+    $(document).ready(function() {
+        $("#projectId").focus();
+    });
+
+    function saveRecNo2LS(jsonObj) {
+        var lvData = JSON.parse(jsonObj.data);
+        localStorage.setItem("recno", lvData.rec_no);
+    }
+
+    function getprojectIdAsJsonObj() {
+        var projectId = $("#projectId").val();
+        var jsonStr = {
+            projectId: projectId
+        };
+        return JSON.stringify(jsonStr);
+    }
+
+    function fillData(jsonObj) {
+        saveRecNo2LS(jsonObj);
+        var record = JSON.parse(jsonObj.data).record;
+        $("#projectname").val(record.projectname);
+        $("#assignedto").val(record.assignedto);
+        $("#assigneddate").val(record.assigneddate);
+        $("#deadline").val(record.deadline);
+    }
+
+    function resetForm() {
+        $("#projectId").val("");
+        $("#projectname").val("");
+        $("#assignedto").val("");
+        $("#assigneddate").val("");
+        $("#deadline").val("");
+        $("#projectId").prop("disabled", false);
+        $("#save").prop("disabled", true);
+        $("#update").prop("disabled", true);
+        $("#reset").prop("disabled", true);
+        $("#projectId").focus();
+    }
+
+    function validateData() {
+        var projectId = $("#projectId").val();
+        var projectname = $("#projectname").val();
+        var assignedto = $("#assignedto").val();
+        var assigneddate = $("#assigneddate").val();
+        var deadline = $("#deadline").val();
+
+        if (projectId === "") {
+            alert("Project ID is a required field");
+            $("#projectId").focus();
+            return null;
+        }
+        if (projectname === "") {
+            alert("Project Name is a required field");
+            $("#projectname").focus();
+            return null;
+        }
+        if (assignedto === "") {
+            alert("Assigned To is a required field");
+            $("#assignedto").focus();
+            return null;
+        }
+        if (assigneddate === "") {
+            alert("Assigned Date is a required field");
+            $("#assigneddate").focus();
+            return null;
+        }
+        if (deadline === "") {
+            alert("Deadline is a required field");
+            $("#deadline").focus();
+            return null;
+        }
+
+        var jsonStrObj = {
+            projectId: projectId,
+            projectname: projectname,
+            assignedto: assignedto,
+            assigneddate: assigneddate,
+            deadline: deadline
+        };
+        return JSON.stringify(jsonStrObj);
+    }
+
+    function getproject() {
+        var projectIdJsonObj = getprojectIdAsJsonObj();
+        var getRequest = createGET_BY_KEYRequest("90933167|-31949320733920313|90950935", "COLLEGE-DB", "PROJECT-TABLE", projectIdJsonObj);
+        jQuery.ajaxSetup({ async: false });
+        var resultObj = executeCommandAtGivenBaseUrl(getRequest, "http://api.login2explore.com:5577", "/api/irl");
+        jQuery.ajaxSetup({ async: true });
+        console.log(JSON.stringify(resultObj));
+        if (resultObj.status === 400) {
+            $("#save").prop("disabled", false);
+            $("#reset").prop("disabled", false);
+            $("#projectId").focus();
+        } else if (resultObj.status === 200) {
+            $("#projectId").prop("disabled", true);
+            fillData(resultObj);
+            $("#update").prop("disabled", false);
+            $("#reset").prop("disabled", false);
+            $("#projectname").focus();
+        }
+    }
+
+    function saveData() {
+        var jsonStrObj = validateData();
+        if (!jsonStrObj) {
+            return;
+        }
+        var putRequest = createPUTRequest("90933167|-31949320733920313|90950935", jsonStrObj, "COLLEGE-DB", "PROJECT-TABLE");
+        jQuery.ajaxSetup({ async: false });
+        var resultObj = executeCommandAtGivenBaseUrl(putRequest, "http://api.login2explore.com:5577", "/api/iml");
+        jQuery.ajaxSetup({ async: true });
+        console.log(JSON.stringify(resultObj));
+        resetForm();
+        $("#projectId").focus();
+    }
+
+    function updateData() {
+        $("#update").prop("disabled", true);
+        var jsonChg = validateData();
+        if (!jsonChg) {
+            return;
+        }
+        var updateRequest = createUPDATERecordRequest("90933167|-31949320733920313|90950935", localStorage.getItem("recno"), jsonChg, "COLLEGE-DB", "PROJECT-TABLE");
+        jQuery.ajaxSetup({ async: false });
+        var resultObj = executeCommandAtGivenBaseUrl(updateRequest, "http://api.login2explore.com:5577", "/api/irl");
+        jQuery.ajaxSetup({ async: true });
+        console.log(JSON.stringify(resultObj));
+        resetForm();
+        $("#projectId").focus();
+    }
+</script>
+
+</body>
+</html>
+
+
